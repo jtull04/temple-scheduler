@@ -1,0 +1,23 @@
+{
+  "name": "temple-scheduler",
+  "version": "1.0.0",
+  "description": "Automates weekly Provo City Center Temple proxy endowment reservations.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jtull04/temple-scheduler.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jtull04/temple-scheduler/issues"
+  },
+  "homepage": "https://github.com/jtull04/temple-scheduler#readme",
+  "dependencies": {
+    "playwright": "^1.63.0"
+  }
+}

@@ -1,0 +1,6 @@
+node_modules/
+.env
+*.env.local
+storage_state.json
+screenshots/
+*.log
