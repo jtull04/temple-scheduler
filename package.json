@@ -2,8 +2,9 @@
   "name": "temple-scheduler",
   "version": "1.0.0",
   "description": "Automates weekly Provo City Center Temple proxy endowment reservations.",
-  "main": "index.js",
+  "main": "src/book.js",
   "scripts": {
+    "book": "node src/book.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -18,6 +19,7 @@
   },
   "homepage": "https://github.com/jtull04/temple-scheduler#readme",
   "dependencies": {
+    "dotenv": "^16.4.5",
     "playwright": "^1.63.0"
   }
 }
