@@ -4,6 +4,23 @@ const fs = require('fs');
 const config = require('./config');
 const { ensureLoggedIn, loadStorageStateOption } = require('./auth');
 
+// Prefer whatever Chromium build is actually installed under
+// PLAYWRIGHT_BROWSERS_PATH over the revision this playwright version
+// expects by default — keeps this working in environments (like this one)
+// where the browsers were pre-installed at a different revision than the
+// npm package pins, without needing `npx playwright install`.
+function resolveChromiumExecutable() {
+  const browsersDir = process.env.PLAYWRIGHT_BROWSERS_PATH;
+  if (!browsersDir || !fs.existsSync(browsersDir)) return undefined;
+
+  const candidate = fs.readdirSync(browsersDir)
+    .find((name) => /^chromium-\d+$/.test(name));
+  if (!candidate) return undefined;
+
+  const exe = path.join(browsersDir, candidate, 'chrome-linux', 'chrome');
+  return fs.existsSync(exe) ? exe : undefined;
+}
+
 // --- Small helpers -------------------------------------------------------
 
 function log(msg) {
@@ -118,7 +135,10 @@ async function submitReservation(page) {
 // --- Entry point -----------------------------------------------------------
 
 async function bookTemple(targetDate) {
-  const browser = await chromium.launch({ headless: config.headless });
+  const browser = await chromium.launch({
+    headless: config.headless,
+    executablePath: resolveChromiumExecutable(),
+  });
   const context = await browser.newContext({ storageState: loadStorageStateOption() });
   const page = await context.newPage();
 

@@ -7,13 +7,18 @@ session.
 
 ## Status
 
-**Blocked on network access.** This project is being built inside a Claude
-Code cloud environment whose network policy currently blocks all
-`churchofjesuschrist.org` subdomains (confirmed: `tos.`, `lcr.`, `id.`, and
-`www.` all return 403 from the environment's egress gateway). The
-automation code is written, but it can't be tested or run here until that
-policy allows the domain. See the environment's network settings on
-claude.ai/code, or run this locally instead (see below).
+**Must be run locally, not in a Claude Code cloud sandbox.** The
+automation is written and believed correct, but a Claude Code cloud
+environment's egress proxy cannot carry real Chromium/Playwright browser
+traffic — confirmed by testing: plain `curl` and raw Node TLS connections
+through the proxy work fine (including to `tos.churchofjesuschrist.org`),
+but every Chromium-driven request resets after ~6 seconds, even to
+unrelated sites like `example.com`, regardless of TLS flags tried
+(disabling Encrypted Client Hello, post-quantum key share, HTTP/2, QUIC).
+This is an infrastructure-level limitation of that sandbox's proxy, not a
+site- or domain-specific block, and not something fixable from inside the
+script. Run this on your own machine instead (see Setup below) — the same
+approach used for the byu-room-booker tool.
 
 ## What it does
 
@@ -29,10 +34,14 @@ claude.ai/code, or run this locally instead (see below).
 
 Screenshots of each step are saved to `screenshots/` for verification.
 
-## Setup
+## Setup (run this on your own computer)
 
 ```
+git clone https://github.com/jtull04/temple-scheduler
+cd temple-scheduler
+git checkout claude/temple-appointment-automation-mrjh3b
 npm install
+npx playwright install chromium   # downloads a matching Chromium build
 cp .env.example .env   # then fill in CHURCH_USERNAME / CHURCH_PASSWORD
 ```
 
@@ -80,10 +89,11 @@ anything that doesn't match.
 
 ## Scheduling
 
-Once network access and the live-site selectors are verified, a weekly
-Claude Code Routine (trigger) will run this script with enough lead time
-before each Friday to fall inside the site's booking window, using the
-stored environment credentials.
+Once the live-site selectors are verified locally, schedule `npm run book`
+to run weekly with enough lead time before each Friday to fall inside the
+site's booking window — e.g. a `cron` job (Linux) or a `launchd` agent
+(macOS) pointed at `node src/book.js` in this directory, similar to how
+byu-room-booker is scheduled.
 
 ## MFA caveat
 
