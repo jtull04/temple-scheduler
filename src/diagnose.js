@@ -18,7 +18,7 @@ const STAGE = process.env.STAGE && process.env.STAGE !== 'all'
 
 function targetDate() {
   const arg = process.argv[2];
-  return arg ? new Date(`${arg}T00:00:00Z`) : config.nextFriday();
+  return arg ? new Date(`${arg}T00:00:00Z`) : config.bookingDate();
 }
 
 function formatLongDate(date) {

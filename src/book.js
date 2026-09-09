@@ -304,7 +304,7 @@ async function bookTemple(targetDate) {
 
 if (require.main === module) {
   const dateArg = process.argv[2];
-  const targetDate = dateArg ? new Date(`${dateArg}T00:00:00Z`) : config.nextFriday();
+  const targetDate = dateArg ? new Date(`${dateArg}T00:00:00Z`) : config.bookingDate();
 
   log(`Booking ${config.templeName} for ${titleDate(targetDate)} `
     + `(${config.maleGuests} male + ${config.femaleGuests} female guests, group "${config.groupName}").`);

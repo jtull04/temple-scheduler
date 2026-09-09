@@ -19,6 +19,19 @@ function nextFriday(from = new Date()) {
   return date;
 }
 
+// The Friday we should book on a given run: the coming Friday (today, if
+// today is a Friday) plus a fixed lead time, so a weekly run always books
+// two weeks out. Run Wed Sep 9 or Fri Sep 11 -> books Fri Sep 25.
+// Override the 14-day lead with BOOKING_LEAD_DAYS (must be a multiple of 7).
+function bookingDate(from = new Date()) {
+  const leadDays = Number(process.env.BOOKING_LEAD_DAYS ?? 14);
+  const date = new Date(Date.UTC(from.getUTCFullYear(), from.getUTCMonth(), from.getUTCDate()));
+  const FRIDAY = 5;
+  const daysToComingFriday = (FRIDAY - date.getUTCDay() + 7) % 7;
+  date.setUTCDate(date.getUTCDate() + daysToComingFriday + leadDays);
+  return date;
+}
+
 function formatDateArg(date) {
   return date.toISOString().slice(0, 10); // YYYY-MM-DD
 }
@@ -39,5 +52,6 @@ module.exports = {
   screenshotDir: process.env.SCREENSHOT_DIR || 'screenshots',
 
   nextFriday,
+  bookingDate,
   formatDateArg,
 };

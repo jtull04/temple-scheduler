@@ -34,6 +34,15 @@ approach used for the byu-room-booker tool.
 
 Screenshots of each step are saved to `screenshots/` for verification.
 
+## Which Friday it books
+
+With no date argument, `book.js` books the Friday **two weeks out**: the
+coming Friday (or today, if today is a Friday) plus 14 days. So a job that
+runs every Friday always books the Friday 14 days later; running any day
+Sun–Fri books the same target for that week. Override the lead time with
+`BOOKING_LEAD_DAYS` (a multiple of 7). Pass an explicit `YYYY-MM-DD` to
+book a specific date instead.
+
 ## Setup (run this on your own computer)
 
 ```
@@ -55,7 +64,7 @@ HEADLESS=false DRY_RUN=true npm run book
 Once you're confident it works, drop `DRY_RUN` to actually submit:
 
 ```
-npm run book              # books the next upcoming Friday
+npm run book              # books the Friday two weeks out
 node src/book.js 2026-09-25  # books a specific Friday (YYYY-MM-DD)
 ```
 
@@ -98,11 +107,22 @@ To re-inspect a screen after a site change: `STAGE=1..4 node src/diagnose.js`.
 
 ## Scheduling
 
-Once the live-site selectors are verified locally, schedule `npm run book`
-to run weekly with enough lead time before each Friday to fall inside the
-site's booking window — e.g. a `cron` job (Linux) or a `launchd` agent
-(macOS) pointed at `node src/book.js` in this directory, similar to how
-byu-room-booker is scheduled.
+Schedule `node src/book.js` (in this directory, without `DRY_RUN`) to run
+once a week — a `launchd` agent (macOS) or `cron` job (Linux) on an
+always-on machine. Fridays are the natural cadence: each run then books the
+Friday exactly 14 days later. The booking window opens more than a month
+ahead, so seats are plentiful at that lead time.
+
+Still to wire up before trusting it unattended:
+
+- **Failure alerts.** A failed run saves `screenshots/error.png` and exits
+  non-zero but notifies no one. Have the scheduler email/text on non-zero
+  exit, or a bad week passes silently.
+- **Session lifetime / MFA.** See below — confirm how long the cached login
+  lasts and whether MFA can be avoided for this account/device.
+- **Already-booked check.** `book.js` does not yet look at "My Temple
+  Reservations" first, so a re-run could attempt a second reservation for
+  the same week.
 
 ## MFA caveat
 
