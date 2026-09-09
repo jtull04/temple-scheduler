@@ -59,22 +59,31 @@ npm run book              # books the next upcoming Friday
 node src/book.js 2026-09-25  # books a specific Friday (YYYY-MM-DD)
 ```
 
-## Known unverified pieces
+## Selectors
 
-These were written from the visible UI (screenshots) rather than the live
-DOM, since this environment couldn't reach the site to inspect it. They'll
-need a live dry run to confirm/fix:
+The site is built with the "eden" component library. Controls render as
+real `<button>`/`<input>` elements but their accessible names rarely match
+the visible text, so `getByRole`/`getByLabel` mostly miss. Every step in
+`src/book.js` instead targets the stable `data-id` attribute each control
+carries (`selectThisTemple`, `ordinanceSelect-PROXY_ENDOWMENT`,
+`proxy-details-additional-guests-checkbox`, `male-guests`, `sessionDateInput`,
+`sessionSelectBtn-N`, `scheduleApptButton`, …), all verified against the
+live DOM with `src/diagnose.js`.
 
-- **Reservation Date field** (`src/book.js` → `setReservationDate`): assumes
-  the date input accepts typed text in the displayed long-date format
-  (e.g. "Friday, September 11, 2026"). If the site actually requires
-  clicking through a calendar popup, this will throw a clear error and
-  needs a follow-up fix rather than failing silently.
-- **Session row / seat availability check**: assumes the sessions table
-  renders as accessible `row`s Playwright can query by visible time text.
+Notes on the flow, confirmed live:
 
-Run with `HEADLESS=false` the first few times so you can watch it and catch
-anything that doesn't match.
+- **Reservation Date** is a calendar popup, not a typed field. `book.js`
+  opens it, pages forward with the "Next month" arrow, and clicks the day
+  `<button title="Friday, September 11, 2026">`.
+- **Picking a session auto-advances to the Finalize step** — there is no
+  "Next" button to click after selecting a time.
+- A session's **Select button is disabled when available seats < party
+  size** (here 6). `book.js` reports this with the seat row rather than
+  hanging. The weekly run books ~2 weeks out, when seats are plentiful.
+
+Run with `HEADLESS=false` the first few times so you can watch it.
+
+To re-inspect a screen after a site change: `STAGE=1..4 node src/diagnose.js`.
 
 ## Credentials & secrets
 
