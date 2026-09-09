@@ -2,7 +2,9 @@ const fs = require('fs');
 const config = require('./config');
 
 const RESERVATION_URL = 'https://tos.churchofjesuschrist.org/?lang=eng';
-const LOGGED_IN_MARKER = 'platform-header'; // present once Church Account SSO completes
+// The "Make a Reservation" heading only renders once Church Account SSO has
+// completed and the wizard has loaded (confirmed against the live site).
+const LOGGED_IN_HEADING = 'Make a Reservation';
 
 // Church Account login form. These selectors come from the lcr-api-2
 // project (https://pypi.org/project/lcr-api-2/), which automates the same
@@ -24,12 +26,12 @@ async function performLogin(page) {
   // Church Account may prompt for MFA here (push notification, code, etc).
   // That step can't be scripted; if it appears, this wait will time out and
   // the caller should surface a clear error rather than hang indefinitely.
-  await page.waitForSelector(`[class*="${LOGGED_IN_MARKER}"]`, { timeout: 60000 });
+  await page.getByRole('heading', { name: LOGGED_IN_HEADING }).waitFor({ timeout: 60000 });
 }
 
 async function isLoggedIn(page) {
   try {
-    await page.waitForSelector(`[class*="${LOGGED_IN_MARKER}"]`, { timeout: 5000 });
+    await page.getByRole('heading', { name: LOGGED_IN_HEADING }).waitFor({ timeout: 5000 });
     return true;
   } catch {
     return false;
